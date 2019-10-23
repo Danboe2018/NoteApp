@@ -22,7 +22,7 @@ class AddNotes : AppCompatActivity() {
 
         val values = ContentValues()
         values.put("Title", etTitle.text.toString())
-        values.put("Description", tvDesc.text.toString())
+        values.put("Description", etDesc.text.toString())
 
         val ID = dbManager.Insert(values)
         if (ID > 0) {

@@ -25,31 +25,52 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // Add dummy data
-        listOfNotes.add(
-            Note(
-                1,
-                " meet professor",
-                "Create any pattern of your own - tiles, texture, skin, wallpaper, comic effect, website background and more.  Change any artwork of pattern you found into different flavors and call them your own."
-            )
-        )
-        listOfNotes.add(
-            Note(
-                2,
-                " meet doctor",
-                "Create any pattern of your own - tiles, texture, skin, wallpaper, comic effect, website background and more.  Change any artwork of pattern you found into different flavors and call them your own."
-            )
-        )
-        listOfNotes.add(
-            Note(
-                3,
-                " meet friend",
-                "Create any pattern of your own - tiles, texture, skin, wallpaper, comic effect, website background and more.  Change any artwork of pattern you found into different flavors and call them your own."
-            )
-
-        )
+//        listOfNotes.add(
+//            Note(
+//                1,
+//                " meet professor",
+//                "Create any pattern of your own - tiles, texture, skin, wallpaper, comic effect, website background and more.  Change any artwork of pattern you found into different flavors and call them your own."
+//            )
+//        )
+//        listOfNotes.add(
+//            Note(
+//                2,
+//                " meet doctor",
+//                "Create any pattern of your own - tiles, texture, skin, wallpaper, comic effect, website background and more.  Change any artwork of pattern you found into different flavors and call them your own."
+//            )
+//        )
+//        listOfNotes.add(
+//            Note(
+//                3,
+//                " meet friend",
+//                "Create any pattern of your own - tiles, texture, skin, wallpaper, comic effect, website background and more.  Change any artwork of pattern you found into different flavors and call them your own."
+//            )
+//
+//        )
 
         var myNotesAdapter = MyNotesAdapter(listOfNotes)
         lvNotes.adapter = myNotesAdapter
+
+        LoadQuery("%")
+    }
+
+    fun LoadQuery(title: String) {
+        var dbManager = DbManager(this)
+        val projections = arrayOf("ID", "Title", "Description")
+        val selectionArgs = arrayOf(title)
+        val cursor = dbManager.Query(projections, "Title like ?", selectionArgs, "Title")
+        listOfNotes.clear()
+
+        if (cursor.moveToFirst()) {
+            do {
+                val ID = cursor.getInt(cursor.getColumnIndex("ID"))
+                val Title = cursor.getString(cursor.getColumnIndex("Title"))
+                val Description = cursor.getString(cursor.getColumnIndex("Description"))
+
+                listOfNotes.add(Note(ID, Title, Description))
+
+            } while (cursor.moveToNext())
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -58,9 +79,10 @@ class MainActivity : AppCompatActivity() {
         val sv = menu!!.findItem(R.id.app_bar_search).actionView as SearchView
         val sm = getSystemService(Context.SEARCH_SERVICE) as SearchManager
         sv.setSearchableInfo(sm.getSearchableInfo(componentName))
-        sv.setOnQueryTextListener(object: SearchView.OnQueryTextListener{
-            override fun onQueryTextSubmit(p0: String?): Boolean {
-                Toast.makeText(applicationContext, p0,Toast.LENGTH_LONG).show()
+        sv.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                Toast.makeText(applicationContext, query, Toast.LENGTH_LONG).show()
+                LoadQuery("%$query%")
                 return false
             }
 
