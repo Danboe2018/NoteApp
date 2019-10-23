@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
 //
 //        )
 
-        var myNotesAdapter = MyNotesAdapter(listOfNotes)
+        var myNotesAdapter = MyNotesAdapter(this, listOfNotes)
         lvNotes.adapter = myNotesAdapter
 
         LoadQuery("%")
@@ -110,8 +110,10 @@ class MainActivity : AppCompatActivity() {
     inner class MyNotesAdapter : BaseAdapter {
 
         var listOfNotes = ArrayList<Note>()
+        var context: Context? = null
 
-        constructor(listOfNotes: ArrayList<Note>) : super() {
+        constructor(context: Context, listOfNotes: ArrayList<Note>) : super() {
+            this.context = context
             this.listOfNotes = listOfNotes
         }
 
@@ -120,6 +122,12 @@ class MainActivity : AppCompatActivity() {
             var myNote = listOfNotes[p0]
             myView.tvTitle.text = myNote.noteName
             myView.tvDesc.text = myNote.noteDesc
+            myView.ivDelete.setOnClickListener(View.OnClickListener {
+                var dbManager=DbManager(this.context!!)
+                val selectionArgs= arrayOf(myNote.noteID.toString())
+                dbManager.Delete("ID=?",selectionArgs)
+                LoadQuery("%")
+            })
 
             return myView
         }
