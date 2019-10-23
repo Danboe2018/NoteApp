@@ -25,33 +25,20 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // Add dummy data
-//        listOfNotes.add(
-//            Note(
-//                1,
-//                " meet professor",
-//                "Create any pattern of your own - tiles, texture, skin, wallpaper, comic effect, website background and more.  Change any artwork of pattern you found into different flavors and call them your own."
-//            )
-//        )
-//        listOfNotes.add(
-//            Note(
-//                2,
-//                " meet doctor",
-//                "Create any pattern of your own - tiles, texture, skin, wallpaper, comic effect, website background and more.  Change any artwork of pattern you found into different flavors and call them your own."
-//            )
-//        )
-//        listOfNotes.add(
-//            Note(
-//                3,
-//                " meet friend",
-//                "Create any pattern of your own - tiles, texture, skin, wallpaper, comic effect, website background and more.  Change any artwork of pattern you found into different flavors and call them your own."
-//            )
-//
-//        )
+//        listOfNotes.add(Note(1," meet professor","Create any pattern of your own - tiles, texture, skin, wallpaper, comic effect, website background and more.  Change any artwork of pattern you found into different flavors and call them your own."))
+//        listOfNotes.add(Note(2," meet doctor","Create any pattern of your own - tiles, texture, skin, wallpaper, comic effect, website background and more.  Change any artwork of pattern you found into different flavors and call them your own."))
+//        listOfNotes.add(Note(3," meet friend","Create any pattern of your own - tiles, texture, skin, wallpaper, comic effect, website background and more.  Change any artwork of pattern you found into different flavors and call them your own."))
 
         var myNotesAdapter = MyNotesAdapter(this, listOfNotes)
         lvNotes.adapter = myNotesAdapter
 
         LoadQuery("%")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        LoadQuery("%")
+        Toast.makeText(this, "onResume", Toast.LENGTH_LONG).show()
     }
 
     fun LoadQuery(title: String) {
@@ -89,7 +76,6 @@ class MainActivity : AppCompatActivity() {
             override fun onQueryTextChange(p0: String?): Boolean {
                 return false
             }
-
         })
 
         return super.onCreateOptionsMenu(menu)
@@ -122,13 +108,15 @@ class MainActivity : AppCompatActivity() {
             var myNote = listOfNotes[p0]
             myView.tvTitle.text = myNote.noteName
             myView.tvDesc.text = myNote.noteDesc
-            myView.ivDelete.setOnClickListener(View.OnClickListener {
-                var dbManager=DbManager(this.context!!)
-                val selectionArgs= arrayOf(myNote.noteID.toString())
-                dbManager.Delete("ID=?",selectionArgs)
+            myView.ivDelete.setOnClickListener {
+                var dbManager = DbManager(this.context!!)
+                val selectionArgs = arrayOf(myNote.noteID.toString())
+                dbManager.Delete("ID=?", selectionArgs)
                 LoadQuery("%")
-            })
-
+            }
+            myView.ivEdit.setOnClickListener {
+                GoToUpdate(myNote)
+            }
             return myView
         }
 
@@ -143,6 +131,14 @@ class MainActivity : AppCompatActivity() {
         override fun getCount(): Int {
             return listOfNotes.size
         }
+    }
+
+    fun GoToUpdate(note: Note) {
+        var intent = Intent(this, AddNotes::class.java)
+        intent.putExtra("ID", note.noteID)
+        intent.putExtra("name", note.noteName)
+        intent.putExtra("desc", note.noteDesc)
+        startActivity(intent)
     }
 }
 
